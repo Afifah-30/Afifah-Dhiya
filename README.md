@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Pendaftaran Siswa Baru - SMK Negeri 1 Purbalingga</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #1e40af;
+            --secondary-color: #dc2626;
+            --accent-color: #f59e0b;
+            --dark-color: #1f2937;
+            --light-bg: #f3f4f6;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--light-bg);
+        }
+
+        /* Header Styles */
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color) !important;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #3b82f6 100%);
+            color: white;
+            padding: 80px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.3; }
+        }
+
+        /* Form Styles */
+        .registration-form {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,.1);
+            padding: 40px;
+            margin-top: -50px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: #e5e7eb;
+            z-index: -1;
+        }
+
+        .step.active:not(:last-child)::after {
+            background: var(--primary-color);
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            color: #6b7280;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-circle {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .step.completed .step-circle {
+            background: #10b981;
+            color: white;
+        }
+
+        /* Card Styles */
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,.1);
+        }
+
+        .info-card i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        /* Program Cards */
+        .program-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .program-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,.1);
+        }
+
+        .program-card.selected {
+            border-color: var(--primary-color);
+            background: #eff6ff;
+        }
+
+        /* Button Styles */
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 12px 30px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #1e3a8a;
+            border-color: #1e3a8a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 12px 30px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: 80px;
+        }
+
+        /* Alert Styles */
+        .alert-custom {
+            border-radius: 8px;
+            border: none;
+            padding: 16px 20px;
+        }
+
+        /* Loading Spinner */
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .spinner-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 60px 0;
+            }
+            
+            .registration-form {
+                padding: 20px;
+                margin-top: -30px;
+            }
+            
+            .step-indicator {
+                margin-bottom: 30px;
+            }
+            
+            .step-circle {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+        }
+
+        /* Success Animation */
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+        }
+
+        .success-checkmark .check-icon {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            border-radius: 50%;
+            box-sizing: content-box;
+            border: 4px solid #4CAF50;
+        }
+
+        .success-checkmark .check-icon::before {
+            top: 3px;
+            left: -2px;
+            width: 30px;
+            transform-origin: 100% 50%;
+            border-radius: 100px 0 0 100px;
+        }
+
+        .success-checkmark .check-icon::after {
+            top: 0;
+            left: 30px;
+            width: 60px;
+            transform-origin: 0 50%;
+            border-radius: 0 100px 100px 0;
+            animation: rotate-circle 4.25s ease-in;
+        }
+
+        .success-checkmark .check-icon::before,
+        .success-checkmark .check-icon::after {
+            content: '';
+            height: 100px;
+            position: absolute;
+            background: #FFFFFF;
+            transform: rotate(-45deg);
+        }
+
+        .success-checkmark .check-icon .icon-line {
+            height: 5px;
+            background-color: #4CAF50;
+            display: block;
+            border-radius: 2px;
+            position: absolute;
+            z-index: 10;
+        }
+
+        .success-checkmark .check-icon .line-tip {
+            top: 46px;
+            left: 14px;
+            width: 25px;
+            transform: rotate(45deg);
+            animation: icon-line-tip 0.75s;
+        }
+
+        .success-checkmark .check-icon .line-long {
+            top: 38px;
+            right: 8px;
+            width: 47px;
+            transform: rotate(-45deg);
+            animation: icon-line-long 0.75s;
+        }
+
+        @keyframes rotate-circle {
+            0% { transform: rotate(-45deg); }
+            5% { transform: rotate(-45deg); }
+            12% { transform: rotate(-405deg); }
+            100% { transform: rotate(-405deg); }
+        }
+
+        @keyframes icon-line-tip {
+            0% { width: 0; left: 1px; top: 19px; }
+            54% { width: 0; left: 1px; top: 19px; }
+            70% { width: 50px; left: -8px; top: 37px; }
+            84% { width: 17px; left: 21px; top: 48px; }
+            100% { width: 25px; left: 14px; top: 45px; }
+        }
+
+        @keyframes icon-line-long {
+            0% { width: 0; right: 46px; top: 54px; }
+            65% { width: 0; right: 46px; top: 54px; }
+            84% { width: 55px; right: 0px; top: 35px; }
+            100% { width: 47px; right: 8px; top: 38px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-mortarboard-fill me-2"></i>
+                SMK Negeri 1 Purbalingga
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#home">Beranda</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#info">Informasi</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#registration">Pendaftaran</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Kontak</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">Penerimaan Peserta Didik Baru</h1>
+                    <h2 class="h3 mb-4">Tahun Ajaran 2024/2025</h2>
+                    <p class="lead mb-4">Bergabunglah dengan SMK Negeri 1 Purbalingga untuk masa depan yang cerah. Dapatkan pendidikan vokasi berkualitas dengan berbagai program keahlian unggulan.</p>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <a href="#registration" class="btn btn-light btn-lg">
+                            <i class="bi bi-pencil-square me-2"></i>Daftar Sekarang
+                        </a>
+                        <a href="#info" class="btn btn-outline-light btn-lg">
+                            <i class="bi bi-info-circle me-2"></i>Pelajari Lebih Lanjut
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <img src="https://picsum.photos/seed/smkbanner/600/400" alt="SMK Negeri 1 Purbalingga" class="img-fluid rounded shadow-lg">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Information Section -->
+    <section id="info" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">Mengapa Memilih SMK Negeri 1 Purbalingga?</h2>
+                <p class="lead text-muted">Kami menyediakan pendidikan vokasi terbaik untuk masa depan Anda</p>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="info-card text-center">
+                        <i class="bi bi-trophy-fill"></i>
+                        <h4>Akreditasi A</h4>
+                        <p>Terpilih sebagai sekolah vokasi terbaik dengan akreditasi A dari BAN-SM</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="info-card text-center">
+                        <i class="bi bi-people-fill"></i>
+                        <h4>Guru Profesional</h4>
+                        <p>Dibimbing oleh guru-guru berpengalaman dan bersertifikasi industri</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="info-card text-center">
+                        <i class="bi bi-building"></i>
+                        <h4>Fasilitas Modern</h4>
+                        <p>Laboratorium dan workshop lengkap dengan peralatan terkini</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Program Keahlian -->
+            <div class="mt-5">
+                <h3 class="text-center mb-4">Program Keahlian Tersedia</h3>
+                <div class="row g-3">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="program-card" onclick="selectProgram(this, 'Teknik Kendaraan Ringan')">
+                            <h5><i class="bi bi-car-front-fill text-primary me-2"></i>Teknik Kendaraan Ringan</h5>
+                            <p class="text-muted mb-0">Mempelajari perawatan dan perbaikan kendaraan bermotor</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="program-card" onclick="selectProgram(this, 'Teknik Komputer dan Jaringan')">
+                            <h5><i class="bi bi-pc-display text-primary me-2"></i>Teknik Komputer dan Jaringan</h5>
+                            <p class="text-muted mb-0">Ahli dalam instalasi dan maintenance jaringan komputer</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="program-card" onclick="selectProgram(this, 'Akuntansi dan Keuangan')">
+                            <h5><i class="bi bi-calculator text-primary me-2"></i>Akuntansi dan Keuangan</h5>
+                            <p class="text-muted mb-0">Menguasai akuntansi dan manajemen keuangan perusahaan</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="program-card" onclick="selectProgram(this, 'Multimedia')">
+                            <h5><i class="bi bi-film text-primary me-2"></i>Multimedia</h5>
+                            <p class="text-muted mb-0">Kreatif dalam desain grafis dan produksi konten digital</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="program-card" onclick="selectProgram(this, 'Perhotelan')">
+                            <h5><i class="bi bi-building-fill text-primary me-2"></i>Perhotelan</h5>
+                            <p class="text-muted mb-0">Profesional di bidang hospitality dan pariwisata</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="program-card" onclick="selectProgram(this, 'Tata Boga')">
+                            <h5><i class="bi bi-cup-hot text-primary me-2"></i>Tata Boga</h5>
+                            <p class="text-muted mb-0">Ahli kuliner dan pastry dengan standar internasional</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Registration Form Section -->
+    <section id="registration" class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="registration-form">
+                        <h2 class="text-center mb-4">Formulir Pendaftaran Siswa Baru</h2>
+                        
+                        <!-- Step Indicator -->
+                        <div class="step-indicator">
+                            <div class="step active" data-step="1">
+                                <div class="step-circle">1</div>
+                                <small>Data Diri</small>
+                            </div>
+                            <div class="step" data-step="2">
+                                <div class="step-circle">2</div>
+                                <small>Data Orang Tua</small>
+                            </div>
+                            <div class="step" data-step="3">
+                                <div class="step-circle">3</div>
+                                <small>Pendidikan</small>
+                            </div>
+                            <div class="step" data-step="4">
+                                <div class="step-circle">4</div>
+                                <small>Dokumen</small>
+                            </div>
+                        </div>
+
+                        <form id="registrationForm">
+                            <!-- Step 1: Personal Data -->
+                            <div class="form-step active" data-step="1">
+                                <h4 class="mb-4">Data Pribadi Calon Siswa</h4>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="fullName" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">NIK <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="nik" maxlength="16" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Tempat Lahir <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="birthPlace" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Tanggal Lahir <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" name="birthDate" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Jenis Kelamin <span class="text-danger">*</span></label>
+                                        <select class="form-select" name="gender" required>
+                                            <option value="">Pilih...</option>
+                                            <option value="L">Laki-laki</option>
+                                            <option value="P">Perempuan</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Agama <span class="text-danger">*</span></label>
+                                        <select class="form-select" name="religion" required>
+                                            <option value="">Pilih...</option>
+                                            <option value="Islam">Islam</option>
+                                            <option value="Kristen">Kristen</option>
+                                            <option value="Katolik">Katolik</option>
+                                            <option value="Hindu">Hindu</option>
+                                            <option value="Buddha">Buddha</option>
+                                            <option value="Konghucu">Konghucu</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Alamat Lengkap <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" name="address" rows="3" required></textarea>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">RT/RW <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="rtRw" placeholder="001/002" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Kelurahan/Desa <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="village" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Kecamatan <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="district" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Kabupaten/Kota <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="city" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Kode Pos <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="postalCode" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">No. HP <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" name="phone" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" name="email" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Parent Data -->
+                            <div class="form-step" data-step="2">
+                                <h4 class="mb-4">Data Orang Tua/Wali</h4>
+                                <h5 class="mb-3">Data Ayah</h5>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nama Ayah <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="fatherName" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Pekerjaan Ayah <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="fatherJob" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Pendidikan Ayah <span class="text-danger">*</span></label>
+                                        <select class="form-select" name="fatherEducation" required>
+                                            <option value="">Pilih...</option>
+                                            <option value="SD">SD</option>
+                                            <option value="SMP">SMP</option>
+                                            <option value="SMA">SMA</option>
+                                            <option value="D3">D3</option>
+                                            <option value="S1">S1</option>
+                                            <option value="S2">S2</option>
+                                            <option value="S3">S3</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">No. HP Ayah</label>
+                                        <input type="tel" class="form-control" name="fatherPhone">
+                                    </div>
+                                </div>
+
+                                <h5 class="mb-3">Data Ibu</h5>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nama Ibu <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="motherName" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Pekerjaan Ibu <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="motherJob" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Pendidikan Ibu <span class="text-danger">*</span></label>
+                                        <select class="form-select" name="motherEducation" required>
+                                            <option value="">Pilih...</option>
+                                            <option value="SD">SD</option>
+                                            <option value="SMP">SMP</option>
+                                            <option value="SMA">SMA</option>
+                                            <option value="D3">D3</option>
+                                            <option value="S1">S1</option>
+                                            <option value="S2">S2</option>
+                                            <option value="S3">S3</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">No. HP Ibu</label>
+                                        <input type="tel" class="form-control" name="motherPhone">
+                                    </div>
+                                </div>
+
+                                <h5 class="mb-3 mt-4">Data Wali (Jika ada)</h5>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nama Wali</label>
+                                        <input type="text" class="form-control" name="guardianName">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Pekerjaan Wali</label>
+                                        <input type="text" class="form-control" name="guardianJob">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">No. HP Wali</label>
+                                        <input type="tel" class="form-control" name="guardianPhone">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Education Data -->
+                            <div class="form-step" data-step="3">
+                                <h4 class="mb-4">Data Pendidikan Sebelumnya</h4>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Asal Sekolah <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="previousSchool" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">NISN <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="nisn" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Alamat Sekolah <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="schoolAddress" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Tahun Lulus <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" name="graduationYear" min="2020" max="2024" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nilai UN Bahasa Indonesia</label>
+                                        <input type="number" class="form-control" name="unBIndo" min="0" max="100">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nilai UN Matematika</label>
+                                        <input type="number" class="form-control" name="unMath" min="0" max="100">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nilai UN Bahasa Inggris</label>
+                                        <input type="number" class="form-control" name="unEnglish" min="0" max="100">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Nilai UN IPA</label>
+                                        <input type="number" class="form-control" name="unScience" min="0" max="100">
+                                    </div>
+                                </div>
+
+                                <h5 class="mb-3 mt-4">Pilihan Program Keahlian</h5>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Pilihan 1 <span class="text-danger">*</span></label>
+                                        <select class="form-select" name="programChoice1" required>
+                                            <option value="">Pilih Program...</option>
+                                            <option value="Teknik Kendaraan Ringan">Teknik Kendaraan Ringan</option>
+                                            <option value="Teknik Komputer dan Jaringan">Teknik Komputer dan Jaringan</option>
+                                            <option value="Akuntansi dan Keuangan">Akuntansi dan Keuangan</option>
+                                            <option value="Multimedia">Multimedia</option>
+                                            <option value="Perhotelan">Perhotelan</option>
+                                            <option value="Tata Boga">Tata Boga</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Pilihan 2</label>
+                                        <select class="form-select" name="programChoice2">
+                                            <option value="">Pilih Program...</option>
+                                            <option value="Teknik Kendaraan Ringan">Teknik Kendaraan Ringan</option>
+                                            <option value="Teknik Komputer dan Jaringan">Teknik Komputer dan Jaringan</option>
+                                            <option value="Akuntansi dan Keuangan">Akuntansi dan Keuangan</option>
+                                            <option value="Multimedia">Multimedia</option>
+                                            <option value="Perhotelan">Perhotelan</option>
+                                            <option value="Tata Boga">Tata Boga</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 4: Documents -->
+                            <div class="form-step" data-step="4">
+                                <h4 class="mb-4">Upload Dokumen</h4>
+                                <p class="text-muted mb-4">Silakan upload dokumen-dokumen yang diperlukan dalam format PDF atau JPG dengan maksimal 2MB per file.</p>
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Pas Foto 3x4 <span class="text-danger">*</span></label>
+                                        <input type="file" class="form-control" name="photo" accept="image/*" required>
+                                        <small class="text-muted">Format: JPG/PNG, Max: 2MB</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Scan Akta Kelahiran <span class="text-danger">*</span></label>
+                                        <input type="file" class="form-control" name="birthCertificate" accept=".pdf,.jpg,.jpeg,.png" required>
+                                        <small class="text-muted">Format: PDF/JPG, Max: 2MB</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Scan Kartu Keluarga <span class="text-danger">*</span></label>
+                                        <input type="file" class="form-control" name="familyCard" accept=".pdf,.jpg,.jpeg,.png" required>
+                                        <small class="text-muted">Format: PDF/JPG, Max: 2MB</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Scan Ijazah/SKL <span class="text-danger">*</span></label>
+                                        <input type="file" class="form-control" name="diploma" accept=".pdf,.jpg,.jpeg,.png" required>
+                                        <small class="text-muted">Format: PDF/JPG, Max: 2MB</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Scan SKHUN (Jika ada)</label>
+                                        <input type="file" class="form-control" name="skhun" accept=".pdf,.jpg,.jpeg,.png">
+                                        <small class="text-muted">Format: PDF/JPG, Max: 2MB</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Surat Keterangan Sehat <span class="text-danger">*</span></label>
+                                        <input type="file" class="form-control" name="healthCertificate" accept=".pdf,.jpg,.jpeg,.png" required>
+                                        <small class="text-muted">Format: PDF/JPG, Max: 2MB</small>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="declaration" required>
+                                        <label
